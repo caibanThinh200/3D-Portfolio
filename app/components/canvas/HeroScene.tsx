@@ -6,9 +6,10 @@ import { Environment, Lightformer } from "@react-three/drei";
 import * as THREE from "three";
 import { useControls } from "leva";
 import { heroScroll } from "../hero/heroScroll";
+import { sceneScroll } from "./sceneScroll";
 
 /* -------------------------------------------------------------------------- */
-/*  Constants                                                                 */
+/*  Constants & Keyframes                                                     */
 /* -------------------------------------------------------------------------- */
 
 const TILE_COUNT = 8;
@@ -17,11 +18,10 @@ const TILE_DEPTH = 0.12;
 const TILE_RADIUS = 0.14;
 const RING_RX = 2.35;
 const RING_RZ = 1.2;
-/** Scroll: ring radius multiplier at full progress, and vertical push (world units) */
-const RING_EXPAND = 4.5;
-const RING_PUSH_Y = 7;
+const RING_EXPAND = 3.6;
+const RING_PUSH_Y = 4.8;
 
-const easeScroll = (p: number) => Math.pow(p, 1.4);
+const easeScroll = (p: number) => Math.pow(p, 1.3);
 const NEON_A = new THREE.Color("#3062ff");
 const NEON_B = new THREE.Color("#00d4ff");
 
@@ -37,12 +37,65 @@ const ICONS = [
 ] as const;
 type IconType = (typeof ICONS)[number];
 
+/**
+ * Camera & hand perspective keyframes for the 4 phases:
+ * Phase 0 (Hero):     Right perspective, elegant 3/4 palm reveal
+ * Phase 1 (Projects): Sweeps to LEFT side, architectural profile view
+ * Phase 2 (About):    Moves to MIDDLE / elevated bird's-eye palm view
+ * Phase 3 (Contact):  Sweeps back to RIGHT, reaching dynamic angle
+ */
+type PhaseKeyframe = {
+  camPos: [number, number, number];
+  lookAt: [number, number, number];
+  handRot: [number, number, number];
+  handPos: [number, number, number];
+  handScale: number;
+  ringPos: [number, number, number];
+};
+
+const PHASE_KEYFRAMES: PhaseKeyframe[] = [
+  // Phase 0: Hero — Hand on RIGHT side, camera viewing from right angle
+  {
+    camPos: [3.2, 0.2, 8.5],
+    lookAt: [2.0, -0.3, 0],
+    handRot: [0.06, 0.18, 0.02],
+    handPos: [2.1, -1.8, 0.0],
+    handScale: 1.55,
+    ringPos: [2.1, -0.2, 0.0],
+  },
+  // Phase 1: Projects — Hand glides to LEFT side, camera viewing from left profile
+  {
+    camPos: [-3.4, -0.35, 8.0],
+    lookAt: [-2.0, -0.25, 0],
+    handRot: [-0.12, -0.85, 0.1],
+    handPos: [-2.1, -1.5, 0.1],
+    handScale: 1.62,
+    ringPos: [-2.1, -0.15, 0.1],
+  },
+  // Phase 2: About — Hand glides to RIGHT side, elevated bird's-eye perspective
+  {
+    camPos: [2.0, 2.3, 7.5],
+    lookAt: [2.0, -0.35, 0],
+    handRot: [0.52, 0.0, -0.04],
+    handPos: [2.1, -1.35, 0.2],
+    handScale: 1.68,
+    ringPos: [2.1, 0.0, 0.2],
+  },
+  // Phase 3: Contact — Hand glides to LEFT side, dynamic reaching angle
+  {
+    camPos: [-0.9, -0.7, 7.6],
+    lookAt: [-2.0, 0.0, 0],
+    handRot: [-0.25, 0.95, -0.1],
+    handPos: [-2.1, -1.55, 0.25],
+    handScale: 1.62,
+    ringPos: [-2.1, -0.15, 0.25],
+  },
+];
+
 /* -------------------------------------------------------------------------- */
 /*  Helpers                                                                   */
 /* -------------------------------------------------------------------------- */
 
-/** Rounded-rect (squircle-like) extruded geometry — keeps a 0.14 corner radius
- *  on a 0.12-deep tile, which a plain RoundedBoxGeometry cannot do. */
 function createSquircleGeometry(size: number, depth: number, radius: number) {
   const h = size / 2;
   const r = Math.min(radius, h);
@@ -165,13 +218,10 @@ type FingerProps = {
   position: [number, number, number];
   lengths: [number, number, number];
   radius: number;
-  /** Curl (rotation Z, radians) per joint */
   curl: [number, number, number];
-  /** Tilt toward/away from camera (rotation X) at the knuckle */
   tilt?: number;
   material: THREE.Material;
   baseRotZ?: number;
-  /** Capsule cap / radial segment counts */
   capSegments?: number;
   radialSegments?: number;
 };
@@ -216,7 +266,6 @@ function Finger({
   );
 }
 
-/** Finger with a Leva folder to live-tweak its params. */
 function ControlledFinger({
   name,
   position,
@@ -265,7 +314,6 @@ function Hand() {
         color: "#f5d5cb",
         roughness: 0.38,
         metalness: 0.04,
-        // Fake subsurface scattering: warm emissive lift + sheen + soft clearcoat
         emissive: new THREE.Color("#7a3b3b"),
         emissiveIntensity: 0.18,
         sheen: 1,
@@ -278,7 +326,6 @@ function Hand() {
     [],
   );
 
-  // Live-tweak panel (Leva). Copy values back into the JSX when happy.
   const fa = useControls("Forearm", {
     radiusTop: { value: 0.36, min: 0.05, max: 1.5, step: 0.01 },
     radiusBottom: { value: 0.44, min: 0.05, max: 1.5, step: 0.01 },
@@ -310,7 +357,6 @@ function Hand() {
 
   return (
     <group>
-      {/* Forearm + wrist */}
       <mesh position={fa.position} material={skin}>
         <cylinderGeometry
           key={`${fa.radiusTop}-${fa.radiusBottom}-${fa.height}-${fa.segments}`}
@@ -323,8 +369,6 @@ function Hand() {
           args={[wr.radius, wr.widthSeg, wr.heightSeg]}
         />
       </mesh>
-
-      {/* Palm */}
       <mesh position={pa.position} material={skin} scale={pa.scale}>
         <sphereGeometry
           key={`${pa.radius}-${pa.widthSeg}-${pa.heightSeg}`}
@@ -338,7 +382,6 @@ function Hand() {
         />
       </mesh>
 
-      {/* Index — long, reaching up and slightly back */}
       <ControlledFinger
         name="Index"
         position={[-0.33, 0.62, 0.02]}
@@ -348,7 +391,6 @@ function Hand() {
         tilt={-0.08}
         material={skin}
       />
-      {/* Middle — tallest, reaching toward the key light */}
       <ControlledFinger
         name="Middle"
         position={[-0.09, 0.68, 0]}
@@ -358,7 +400,6 @@ function Hand() {
         tilt={0.05}
         material={skin}
       />
-      {/* Ring — gently relaxed */}
       <ControlledFinger
         name="Ring"
         position={[0.15, 0.64, 0]}
@@ -369,7 +410,6 @@ function Hand() {
         capSegments={10}
         material={skin}
       />
-      {/* Pinky */}
       <ControlledFinger
         name="Pinky"
         position={[0.36, 0.52, 0]}
@@ -379,7 +419,6 @@ function Hand() {
         tilt={0.14}
         material={skin}
       />
-      {/* Thumb — opens out to the left */}
       <ControlledFinger
         name="Thumb"
         position={[-0.46, -0.1, 0.1]}
@@ -421,11 +460,11 @@ function Tile({ index, angle, bodyGeo, rimGeo, texture, onHover }: TileProps) {
 
   useFrame((_, dt) => {
     if (!group.current || !rimMat.current || !slot.current) return;
-    // Scroll-driven spread: ring widens (gap grows) then tiles exit the viewport
+
     expand.current = THREE.MathUtils.lerp(
       expand.current,
       easeScroll(heroScroll.progress),
-      1 - Math.exp(-dt * 6),
+      1 - Math.exp(-dt * 5),
     );
     const e = expand.current;
     const r = 1 + e * RING_EXPAND;
@@ -436,12 +475,12 @@ function Tile({ index, angle, bodyGeo, rimGeo, texture, onHover }: TileProps) {
     );
 
     const k = 1 - Math.exp(-dt * 10);
-    const target = hovered.current ? 1.1 : 1;
+    const target = hovered.current ? 1.12 : 1;
     const s = THREE.MathUtils.lerp(group.current.scale.x, target, k);
     group.current.scale.setScalar(s);
     rimMat.current.emissiveIntensity = THREE.MathUtils.lerp(
       rimMat.current.emissiveIntensity,
-      hovered.current ? 6 : 2.4,
+      hovered.current ? 6.5 : 2.4,
       k,
     );
   });
@@ -465,7 +504,6 @@ function Tile({ index, angle, bodyGeo, rimGeo, texture, onHover }: TileProps) {
           document.body.style.cursor = "";
         }}
       >
-        {/* Smoked obsidian chrome body */}
         <mesh geometry={bodyGeo}>
           <meshPhysicalMaterial
             color="#161c2a"
@@ -476,7 +514,6 @@ function Tile({ index, angle, bodyGeo, rimGeo, texture, onHover }: TileProps) {
             envMapIntensity={3}
           />
         </mesh>
-        {/* Neon chamfer / rim */}
         <mesh geometry={rimGeo}>
           <meshStandardMaterial
             ref={rimMat}
@@ -486,7 +523,6 @@ function Tile({ index, angle, bodyGeo, rimGeo, texture, onHover }: TileProps) {
             toneMapped={false}
           />
         </mesh>
-        {/* Inset metallic icon */}
         <mesh position={[0, 0, TILE_DEPTH / 2 + 0.004]}>
           <planeGeometry args={[TILE_SIZE * 0.62, TILE_SIZE * 0.62]} />
           <meshStandardMaterial
@@ -503,7 +539,7 @@ function Tile({ index, angle, bodyGeo, rimGeo, texture, onHover }: TileProps) {
   );
 }
 
-function OrbitRing() {
+function OrbitRing({ ringRef }: { ringRef: React.RefObject<THREE.Group | null> }) {
   const tilt = useRef<THREE.Group>(null);
   const spin = useRef<THREE.Group>(null);
   const hoverCount = useRef(0);
@@ -519,31 +555,19 @@ function OrbitRing() {
   );
   const textures = useMemo(() => ICONS.map((i) => drawIcon(i)), []);
 
-  useFrame(({ pointer }, dt) => {
-    if (!tilt.current || !spin.current) return;
-    const target = hoverCount.current > 0 ? 0.015 : 0.18;
+  useFrame((_, dt) => {
+    if (!spin.current) return;
+    const target = hoverCount.current > 0 ? 0.02 : 0.18;
     speed.current = THREE.MathUtils.lerp(
       speed.current,
       target,
       1 - Math.exp(-dt * 4),
     );
     spin.current.rotation.y += dt * speed.current;
-
-    const k = 1 - Math.exp(-dt * 3);
-    tilt.current.rotation.y = THREE.MathUtils.lerp(
-      tilt.current.rotation.y,
-      pointer.x * 0.15,
-      k,
-    );
-    tilt.current.rotation.x = THREE.MathUtils.lerp(
-      tilt.current.rotation.x,
-      THREE.MathUtils.degToRad(20) - pointer.y * 0.1,
-      k,
-    );
   });
 
   return (
-    <group position={[0, -0.2, 0]}>
+    <group ref={ringRef} position={[2.1, -0.2, 0]}>
       <group
         ref={tilt}
         rotation={[THREE.MathUtils.degToRad(20), 0, THREE.MathUtils.degToRad(-10)]}
@@ -569,56 +593,181 @@ function OrbitRing() {
 }
 
 /* -------------------------------------------------------------------------- */
-/*  Scene                                                                     */
+/*  Scene with Multi-Phase Camera Orbit & Perspectives                        */
 /* -------------------------------------------------------------------------- */
 
 export default function HeroScene() {
   const handRef = useRef<THREE.Group>(null);
+  const ringRef = useRef<THREE.Group>(null);
+  const currentLookAt = useRef(new THREE.Vector3(2.0, -0.3, 0));
 
   useFrame((state, dt) => {
-    if (!handRef.current) return;
-    const k = 1 - Math.exp(-dt * 3);
-    handRef.current.rotation.y = THREE.MathUtils.lerp(
-      handRef.current.rotation.y,
-      state.pointer.x * 0.15,
+    const p = Math.min(3, Math.max(0, sceneScroll.progress));
+    const idx = Math.min(2, Math.floor(p));
+    const frac = p - idx;
+    // Smooth Hermite easing for transitions between keyframes
+    const t = frac * frac * (3 - 2 * frac);
+
+    const kfA = PHASE_KEYFRAMES[idx];
+    const kfB = PHASE_KEYFRAMES[Math.min(3, idx + 1)];
+
+    // Target Camera Position (interpolated between phases)
+    const targetCamX = THREE.MathUtils.lerp(kfA.camPos[0], kfB.camPos[0], t);
+    const targetCamY = THREE.MathUtils.lerp(kfA.camPos[1], kfB.camPos[1], t);
+    const targetCamZ = THREE.MathUtils.lerp(kfA.camPos[2], kfB.camPos[2], t);
+
+    // Target LookAt
+    const targetLookX = THREE.MathUtils.lerp(kfA.lookAt[0], kfB.lookAt[0], t);
+    const targetLookY = THREE.MathUtils.lerp(kfA.lookAt[1], kfB.lookAt[1], t);
+    const targetLookZ = THREE.MathUtils.lerp(kfA.lookAt[2], kfB.lookAt[2], t);
+
+    // Target Hand Transform
+    const targetHandRotX = THREE.MathUtils.lerp(kfA.handRot[0], kfB.handRot[0], t);
+    const targetHandRotY = THREE.MathUtils.lerp(kfA.handRot[1], kfB.handRot[1], t);
+    const targetHandRotZ = THREE.MathUtils.lerp(kfA.handRot[2], kfB.handRot[2], t);
+
+    const targetHandPosX = THREE.MathUtils.lerp(kfA.handPos[0], kfB.handPos[0], t);
+    const targetHandPosY = THREE.MathUtils.lerp(kfA.handPos[1], kfB.handPos[1], t);
+    const targetHandPosZ = THREE.MathUtils.lerp(kfA.handPos[2], kfB.handPos[2], t);
+
+    const targetHandScale = THREE.MathUtils.lerp(kfA.handScale, kfB.handScale, t);
+
+    // Target Ring Transform
+    const targetRingPosX = THREE.MathUtils.lerp(kfA.ringPos[0], kfB.ringPos[0], t);
+    const targetRingPosY = THREE.MathUtils.lerp(kfA.ringPos[1], kfB.ringPos[1], t);
+    const targetRingPosZ = THREE.MathUtils.lerp(kfA.ringPos[2], kfB.ringPos[2], t);
+
+    // Mouse parallax
+    const mouseX = state.pointer.x * 0.25;
+    const mouseY = state.pointer.y * 0.18;
+
+    // Smooth lerp damping
+    const k = 1 - Math.exp(-dt * 4);
+
+    // Update Camera
+    state.camera.position.x = THREE.MathUtils.lerp(
+      state.camera.position.x,
+      targetCamX + mouseX,
       k,
     );
-    handRef.current.rotation.x = THREE.MathUtils.lerp(
-      handRef.current.rotation.x,
-      -state.pointer.y * 0.1,
+    state.camera.position.y = THREE.MathUtils.lerp(
+      state.camera.position.y,
+      targetCamY + mouseY,
       k,
     );
+    state.camera.position.z = THREE.MathUtils.lerp(
+      state.camera.position.z,
+      targetCamZ,
+      k,
+    );
+
+    currentLookAt.current.x = THREE.MathUtils.lerp(
+      currentLookAt.current.x,
+      targetLookX,
+      k,
+    );
+    currentLookAt.current.y = THREE.MathUtils.lerp(
+      currentLookAt.current.y,
+      targetLookY,
+      k,
+    );
+    currentLookAt.current.z = THREE.MathUtils.lerp(
+      currentLookAt.current.z,
+      targetLookZ,
+      k,
+    );
+    state.camera.lookAt(currentLookAt.current);
+
+    // Update Hand Group
+    if (handRef.current) {
+      handRef.current.rotation.x = THREE.MathUtils.lerp(
+        handRef.current.rotation.x,
+        targetHandRotX - mouseY * 0.15,
+        k,
+      );
+      handRef.current.rotation.y = THREE.MathUtils.lerp(
+        handRef.current.rotation.y,
+        targetHandRotY + mouseX * 0.2,
+        k,
+      );
+      handRef.current.rotation.z = THREE.MathUtils.lerp(
+        handRef.current.rotation.z,
+        targetHandRotZ,
+        k,
+      );
+
+      handRef.current.position.x = THREE.MathUtils.lerp(
+        handRef.current.position.x,
+        targetHandPosX,
+        k,
+      );
+      handRef.current.position.y = THREE.MathUtils.lerp(
+        handRef.current.position.y,
+        targetHandPosY,
+        k,
+      );
+      handRef.current.position.z = THREE.MathUtils.lerp(
+        handRef.current.position.z,
+        targetHandPosZ,
+        k,
+      );
+
+      const s = THREE.MathUtils.lerp(
+        handRef.current.scale.x,
+        targetHandScale,
+        k,
+      );
+      handRef.current.scale.setScalar(s);
+    }
+
+    // Update Ring Group
+    if (ringRef.current) {
+      ringRef.current.position.x = THREE.MathUtils.lerp(
+        ringRef.current.position.x,
+        targetRingPosX,
+        k,
+      );
+      ringRef.current.position.y = THREE.MathUtils.lerp(
+        ringRef.current.position.y,
+        targetRingPosY,
+        k,
+      );
+      ringRef.current.position.z = THREE.MathUtils.lerp(
+        ringRef.current.position.z,
+        targetRingPosZ,
+        k,
+      );
+    }
   });
 
   return (
     <>
       <color attach="background" args={["#000000"]} />
 
-      {/* Lighting rig */}
-      <ambientLight intensity={0.06} color="#2a3566" />
-      {/* Top key — warm, above fingertips */}
-      <pointLight position={[0.1, 1.0, 1.1]} color="#fff4e6" intensity={3.0} decay={1.6} />
-      {/* Core neon glow — inside the ring orbit, behind the hand */}
-      <pointLight position={[0, -0.4, -0.7]} color="#1d5eff" intensity={7.5} decay={1.4} />
-      {/* Front-low blue wash so the palm picks up the neon spill */}
-      <pointLight position={[0, -1.4, 2.0]} color="#3a6bff" intensity={3.2} decay={1.6} />
-      {/* Rim fill — purple/magenta, bottom-left */}
-      <directionalLight position={[-4, -3, 2]} color="#7c3aed" intensity={1.2} />
+      {/* Global ambient & directional fills */}
+      <ambientLight intensity={0.08} color="#2a3566" />
+      <directionalLight position={[-6, 4, 3]} color="#7c3aed" intensity={1.2} />
+      <directionalLight position={[6, 4, 3]} color="#00d4ff" intensity={1.2} />
 
-      {/* Local environment for chrome reflections (no network HDR) */}
-      <Environment resolution={256} environmentIntensity={0.9}>
-        <Lightformer form="rect" intensity={2.5} color="#3062ff" position={[-5, 1, 2]} scale={[6, 3, 1]} />
-        <Lightformer form="rect" intensity={2} color="#00d4ff" position={[5, 0, 1]} scale={[5, 4, 1]} />
-        <Lightformer form="rect" intensity={1.6} color="#ffffff" position={[0, 4, 3]} scale={[6, 1.5, 1]} />
-        <Lightformer form="ring" intensity={1.5} color="#7c3aed" position={[0, -3, 2]} scale={4} />
+      {/* Local environment for chrome reflections */}
+      <Environment resolution={256} environmentIntensity={0.95}>
+        <Lightformer form="rect" intensity={2.8} color="#3062ff" position={[-5, 1, 2]} scale={[6, 3, 1]} />
+        <Lightformer form="rect" intensity={2.2} color="#00d4ff" position={[5, 0, 1]} scale={[5, 4, 1]} />
+        <Lightformer form="rect" intensity={1.8} color="#ffffff" position={[0, 4, 3]} scale={[6, 1.5, 1]} />
+        <Lightformer form="ring" intensity={1.6} color="#7c3aed" position={[0, -3, 2]} scale={4} />
       </Environment>
 
-      {/* Hand rises from the bottom edge */}
-      <group ref={handRef} position={[0, -2.0, 0]} rotation={[0, 0, 0.04]} scale={1.6}>
+      {/* Hand group — starts on the right side in Phase 0 */}
+      <group ref={handRef} position={[2.1, -1.8, 0]} rotation={[0.06, 0.18, 0.02]} scale={1.55}>
         <Hand />
+        {/* Core lights follow the hand group across the viewport */}
+        <pointLight position={[0.2, 1.6, 1.2]} color="#fff4e6" intensity={3.0} decay={1.5} />
+        <pointLight position={[0, 1.2, -0.7]} color="#1d5eff" intensity={7.5} decay={1.4} />
+        <pointLight position={[0, 0.4, 2.0]} color="#3a6bff" intensity={3.0} decay={1.5} />
       </group>
 
-      <OrbitRing />
+      {/* Orbit Ring */}
+      <OrbitRing ringRef={ringRef} />
     </>
   );
 }

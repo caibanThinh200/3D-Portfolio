@@ -9,7 +9,7 @@ const SceneCanvasInner = dynamic(() => import("./SceneCanvasInner"), {
 
 export default function SceneCanvas() {
   return (
-    <div className="absolute -inset-[3%] bg-black" aria-hidden="true">
+    <div className="relative h-full w-full overflow-hidden bg-black" aria-hidden="true">
       <SceneCanvasInner />
     </div>
   );
