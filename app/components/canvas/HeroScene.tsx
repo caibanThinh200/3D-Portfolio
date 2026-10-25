@@ -45,6 +45,7 @@ type IconType = (typeof ICONS)[number];
  * Phase 3 (Contact):  Sweeps back to RIGHT, reaching dynamic angle
  */
 type PhaseKeyframe = {
+  p: number;
   camPos: [number, number, number];
   lookAt: [number, number, number];
   handRot: [number, number, number];
@@ -54,41 +55,85 @@ type PhaseKeyframe = {
 };
 
 const PHASE_KEYFRAMES: PhaseKeyframe[] = [
-  // Phase 0: Hero — Hand on RIGHT side, camera viewing from right angle
+  // 0.0: Hero Top — Centered, hand submerged at bottom of viewport (-90vh feel)
   {
-    camPos: [3.2, 0.2, 8.5],
-    lookAt: [2.0, -0.3, 0],
-    handRot: [0.06, 0.18, 0.02],
-    handPos: [2.1, -1.8, 0.0],
+    p: 0.0,
+    camPos: [0.0, 0.4, 8.4],
+    lookAt: [0.0, -0.6, 0],
+    handRot: [0.15, 0.0, 0.0],
+    handPos: [0.0, -5.8, 0.0],
     handScale: 1.55,
-    ringPos: [2.1, -0.2, 0.0],
+    ringPos: [0.0, -4.2, 0.0],
   },
-  // Phase 1: Projects — Hand glides to LEFT side, camera viewing from left profile
+  // 0.25: Hero Scroll — Hand rises quickly into full center view
   {
-    camPos: [-3.4, -0.35, 8.0],
-    lookAt: [-2.0, -0.25, 0],
-    handRot: [-0.12, -0.85, 0.1],
-    handPos: [-2.1, -1.5, 0.1],
+    p: 0.25,
+    camPos: [0.0, 0.1, 8.2],
+    lookAt: [0.0, -0.25, 0],
+    handRot: [0.06, 0.0, 0.0],
+    handPos: [0.0, -1.6, 0.0],
+    handScale: 1.55,
+    ringPos: [0.0, -0.1, 0.0],
+  },
+  // 0.65: Section 2 Arrival — Hand smoothly sweeps across to LEFT side
+  {
+    p: 0.65,
+    camPos: [-0.6, -0.2, 8.0],
+    lookAt: [0.2, -0.2, 0],
+    handRot: [-0.1, -0.75, 0.08],
+    handPos: [-2.4, -1.4, 0.1],
     handScale: 1.62,
-    ringPos: [-2.1, -0.15, 0.1],
+    ringPos: [-2.4, -0.1, 0.1],
   },
-  // Phase 2: About — Hand glides to RIGHT side, elevated bird's-eye perspective
+  // 1.0: Section 2 (Projects) — Hand firmly on LEFT, content on RIGHT
   {
-    camPos: [2.0, 2.3, 7.5],
-    lookAt: [2.0, -0.35, 0],
-    handRot: [0.52, 0.0, -0.04],
-    handPos: [2.1, -1.35, 0.2],
+    p: 1.0,
+    camPos: [-0.6, -0.2, 8.0],
+    lookAt: [0.2, -0.2, 0],
+    handRot: [-0.1, -0.75, 0.08],
+    handPos: [-2.4, -1.4, 0.1],
+    handScale: 1.62,
+    ringPos: [-2.4, -0.1, 0.1],
+  },
+  // 1.65: Section 3 Arrival — Hand glides across to RIGHT side
+  {
+    p: 1.65,
+    camPos: [0.6, 2.0, 7.8],
+    lookAt: [-0.2, -0.2, 0],
+    handRot: [0.45, 0.65, -0.05],
+    handPos: [2.4, -1.3, 0.2],
     handScale: 1.68,
-    ringPos: [2.1, 0.0, 0.2],
+    ringPos: [2.4, 0.0, 0.2],
   },
-  // Phase 3: Contact — Hand glides to LEFT side, dynamic reaching angle
+  // 2.0: Section 3 (About) — Hand firmly on RIGHT, content on LEFT
   {
-    camPos: [-0.9, -0.7, 7.6],
-    lookAt: [-2.0, 0.0, 0],
-    handRot: [-0.25, 0.95, -0.1],
-    handPos: [-2.1, -1.55, 0.25],
+    p: 2.0,
+    camPos: [0.6, 2.0, 7.8],
+    lookAt: [-0.2, -0.2, 0],
+    handRot: [0.45, 0.65, -0.05],
+    handPos: [2.4, -1.3, 0.2],
+    handScale: 1.68,
+    ringPos: [2.4, 0.0, 0.2],
+  },
+  // 2.65: Section 4 Arrival — Hand glides across to LEFT side
+  {
+    p: 2.65,
+    camPos: [-0.4, -0.6, 7.6],
+    lookAt: [0.2, 0.0, 0],
+    handRot: [-0.2, -0.8, 0.05],
+    handPos: [-2.4, -1.5, 0.2],
     handScale: 1.62,
-    ringPos: [-2.1, -0.15, 0.25],
+    ringPos: [-2.4, -0.1, 0.2],
+  },
+  // 3.0: Section 4 (Contact) — Hand firmly on LEFT, content on RIGHT
+  {
+    p: 3.0,
+    camPos: [-0.4, -0.6, 7.6],
+    lookAt: [0.2, 0.0, 0],
+    handRot: [-0.2, -0.8, 0.05],
+    handPos: [-2.4, -1.5, 0.2],
+    handScale: 1.62,
+    ringPos: [-2.4, -0.1, 0.2],
   },
 ];
 
@@ -567,7 +612,7 @@ function OrbitRing({ ringRef }: { ringRef: React.RefObject<THREE.Group | null> }
   });
 
   return (
-    <group ref={ringRef} position={[2.1, -0.2, 0]}>
+    <group ref={ringRef} position={[0, -4.2, 0]}>
       <group
         ref={tilt}
         rotation={[THREE.MathUtils.degToRad(20), 0, THREE.MathUtils.degToRad(-10)]}
@@ -599,17 +644,27 @@ function OrbitRing({ ringRef }: { ringRef: React.RefObject<THREE.Group | null> }
 export default function HeroScene() {
   const handRef = useRef<THREE.Group>(null);
   const ringRef = useRef<THREE.Group>(null);
-  const currentLookAt = useRef(new THREE.Vector3(2.0, -0.3, 0));
+  const currentLookAt = useRef(new THREE.Vector3(0.0, -0.6, 0));
 
   useFrame((state, dt) => {
     const p = Math.min(3, Math.max(0, sceneScroll.progress));
-    const idx = Math.min(2, Math.floor(p));
-    const frac = p - idx;
-    // Smooth Hermite easing for transitions between keyframes
-    const t = frac * frac * (3 - 2 * frac);
 
-    const kfA = PHASE_KEYFRAMES[idx];
-    const kfB = PHASE_KEYFRAMES[Math.min(3, idx + 1)];
+    // Find bounding keyframes
+    let kfA = PHASE_KEYFRAMES[0];
+    let kfB = PHASE_KEYFRAMES[PHASE_KEYFRAMES.length - 1];
+
+    for (let i = 0; i < PHASE_KEYFRAMES.length - 1; i++) {
+      if (p >= PHASE_KEYFRAMES[i].p && p <= PHASE_KEYFRAMES[i + 1].p) {
+        kfA = PHASE_KEYFRAMES[i];
+        kfB = PHASE_KEYFRAMES[i + 1];
+        break;
+      }
+    }
+
+    const range = Math.max(0.0001, kfB.p - kfA.p);
+    const u = Math.min(1, Math.max(0, (p - kfA.p) / range));
+    // Smooth Hermite easing for transitions between keyframes
+    const t = u * u * (3 - 2 * u);
 
     // Target Camera Position (interpolated between phases)
     const targetCamX = THREE.MathUtils.lerp(kfA.camPos[0], kfB.camPos[0], t);
@@ -757,8 +812,8 @@ export default function HeroScene() {
         <Lightformer form="ring" intensity={1.6} color="#7c3aed" position={[0, -3, 2]} scale={4} />
       </Environment>
 
-      {/* Hand group — starts on the right side in Phase 0 */}
-      <group ref={handRef} position={[2.1, -1.8, 0]} rotation={[0.06, 0.18, 0.02]} scale={1.55}>
+      {/* Hand group — starts submerged at the bottom in Phase 0 */}
+      <group ref={handRef} position={[0, -5.8, 0]} rotation={[0.15, 0, 0]} scale={1.55}>
         <Hand />
         {/* Core lights follow the hand group across the viewport */}
         <pointLight position={[0.2, 1.6, 1.2]} color="#fff4e6" intensity={3.0} decay={1.5} />

@@ -26,7 +26,8 @@ export default function ScrollTracker() {
       // Get section offsets
       const offsets = SECTION_IDS.map((id) => {
         const el = document.getElementById(id);
-        return el ? el.offsetTop : 0;
+        if (!el) return 0;
+        return el.getBoundingClientRect().top + window.scrollY;
       });
 
       // Continuous section progress 0.0 -> 3.0

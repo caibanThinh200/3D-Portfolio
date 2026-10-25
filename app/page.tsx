@@ -19,7 +19,7 @@ export default function Home() {
       {/* Scrollable Content Layer across sections with alternating left/right layout */}
       <div className="relative z-10 w-full pointer-events-none">
         <section id="hero" className="w-full">
-          <div className="w-full lg:w-1/2 pointer-events-auto">
+          <div className="w-full pointer-events-auto">
             <HeroOverlay />
           </div>
         </section>

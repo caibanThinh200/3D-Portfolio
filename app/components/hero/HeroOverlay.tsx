@@ -6,13 +6,13 @@ const EASE = [0.16, 1, 0.3, 1] as const;
 
 export default function HeroOverlay() {
   return (
-    <div className="flex min-h-screen flex-col justify-center px-6 py-20 sm:px-12 lg:px-16 xl:px-24">
+    <div className="flex min-h-screen flex-col items-center justify-center px-6 py-20 text-center max-w-4xl mx-auto">
       {/* Phase Label */}
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1, ease: EASE }}
-        className="mb-6 flex items-center gap-3 text-xs uppercase tracking-[0.3em] text-cyan-400"
+        className="mb-6 flex items-center justify-center gap-3 text-xs uppercase tracking-[0.3em] text-cyan-400"
       >
         <span className="inline-block h-1.5 w-1.5 rounded-full bg-cyan-400 shadow-[0_0_8px_#00d4ff]" />
         <span>Phase 01 &bull; Introduction</span>
@@ -23,7 +23,7 @@ export default function HeroOverlay() {
         initial={{ opacity: 0, y: 28 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1.2, delay: 0.1, ease: EASE }}
-        className="font-serif text-[clamp(2.75rem,5.5vw,5.5rem)] font-normal leading-[1.05] tracking-tight text-white drop-shadow-[0_4px_30px_rgba(48,98,255,0.35)]"
+        className="font-serif text-[clamp(2.75rem,5.5vw,5.5rem)] font-normal leading-[1.05] tracking-tight text-white drop-shadow-[0_4px_30px_rgba(48,98,255,0.35)] text-center"
       >
         Make magic <br />
         <span className="italic text-transparent bg-clip-text bg-gradient-to-r from-white via-cyan-100 to-cyan-400">
@@ -36,7 +36,7 @@ export default function HeroOverlay() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1.2, delay: 0.25, ease: EASE }}
-        className="mt-6 max-w-xl text-base sm:text-lg leading-relaxed text-white/65 font-light"
+        className="mt-6 max-w-2xl text-base sm:text-lg leading-relaxed text-white/65 font-light text-center"
       >
         Full-stack engineer &amp; creative technologist crafting 3D immersive web
         experiences at the intersection of high-performance code, real-time shaders,
@@ -48,7 +48,7 @@ export default function HeroOverlay() {
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1, delay: 0.4, ease: EASE }}
-        className="mt-8 flex flex-wrap gap-2.5"
+        className="mt-8 flex flex-wrap justify-center gap-2.5"
       >
         {["Three.js / WebGL", "React & Next.js", "Creative Tech", "Shader Art"].map(
           (skill) => (
@@ -67,7 +67,7 @@ export default function HeroOverlay() {
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1, delay: 0.55, ease: EASE }}
-        className="mt-10 flex flex-wrap items-center gap-4"
+        className="mt-10 flex flex-wrap items-center justify-center gap-4"
       >
         <a
           href="#projects"
@@ -92,7 +92,7 @@ export default function HeroOverlay() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1.5, delay: 0.9 }}
-        className="mt-16 flex items-center gap-3 text-xs uppercase tracking-[0.2em] text-white/35"
+        className="mt-16 flex items-center justify-center gap-3 text-xs uppercase tracking-[0.2em] text-white/35"
       >
         <span className="relative flex h-8 w-px overflow-hidden bg-white/20">
           <motion.span
