@@ -694,7 +694,7 @@ export default function HeroScene() {
 
     // Mouse parallax
     const mouseX = state.pointer.x * 0.25;
-    const mouseY = state.pointer.y * 0.18;
+    const mouseY = state.pointer.y * 0.25;
 
     // Smooth lerp damping
     const k = 1 - Math.exp(-dt * 4);
