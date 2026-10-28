@@ -23,7 +23,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${manrope.variable} ${playfair.variable} antialiased`}>
-      <body className="min-h-screen bg-black">{children}</body>
+      <body className="min-h-screen">{children}</body>
     </html>
   );
 }

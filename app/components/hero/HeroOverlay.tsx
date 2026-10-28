@@ -51,16 +51,6 @@ export default function HeroOverlay() {
       initial="hidden"
       animate="visible"
     >
-      {/* Ambient glow behind the text block */}
-      <motion.div
-        variants={itemVariants}
-        aria-hidden
-        className={clsx('pointer-events-none', 'absolute', 'left-1/2', 'top-1/2', '-translate-x-1/2', '-translate-y-1/2', 'h-[340px]', 'w-[640px]', 'rounded-full', 'opacity-25', 'blur-[100px]')}
-        style={{
-          background:
-            "radial-gradient(ellipse at center, rgba(0,212,255,0.6) 0%, rgba(48,98,255,0.45) 50%, transparent 80%)",
-        }}
-      />
 
       {/* Phase Label */}
       <motion.div
