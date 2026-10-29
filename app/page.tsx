@@ -28,11 +28,11 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Phase 2: Section 2 content on the RIGHT, Hand glides to the LEFT */}
-        <ProjectsSection />
-
-        {/* Phase 3: Section 3 content on the LEFT, Hand glides to the RIGHT */}
+        {/* Phase 2: About content on the RIGHT (scroll-revealed), Hand on the LEFT */}
         <AboutSection />
+
+        {/* Phase 3: Projects content on the LEFT, Hand glides to the RIGHT */}
+        <ProjectsSection />
 
         {/* Phase 4: Section 4 content on the RIGHT, Hand glides to the LEFT */}
         <ContactSection />

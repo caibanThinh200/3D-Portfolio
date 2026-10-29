@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { heroScroll } from "../hero/heroScroll";
 import { sceneScroll } from "./sceneScroll";
 
-const SECTION_IDS = ["hero", "projects", "about", "contact"] as const;
+const SECTION_IDS = ["hero", "about", "projects", "contact"] as const;
 
 /**
  * Invisible client component that synchronizes window scroll to shared R3F state.
@@ -23,26 +23,44 @@ export default function ScrollTracker() {
       // Full document scroll progress 0 -> 1
       heroScroll.progress = Math.min(1, Math.max(0, scrollY / maxScroll));
 
-      // Get section offsets
-      const offsets = SECTION_IDS.map((id) => {
+      // Section offsets, with "dwell" (extra pinned scroll in tall sections)
+      // removed so the 3D scene holds its pose while content reveals.
+      const rawOffsets: number[] = [];
+      const dwells: number[] = [];
+      SECTION_IDS.forEach((id) => {
         const el = document.getElementById(id);
-        if (!el) return 0;
-        return el.getBoundingClientRect().top + window.scrollY;
+        if (!el) {
+          rawOffsets.push(0);
+          dwells.push(0);
+          return;
+        }
+        rawOffsets.push(el.getBoundingClientRect().top + window.scrollY);
+        dwells.push(Math.max(0, el.offsetHeight - winH));
       });
+
+      let consumed = 0;
+      let removed = 0;
+      const offsets = rawOffsets.map((o, i) => {
+        const eff = o - removed;
+        removed += dwells[i];
+        consumed += Math.min(dwells[i], Math.max(0, scrollY - o));
+        return eff;
+      });
+      const effScroll = scrollY - consumed;
 
       // Continuous section progress 0.0 -> 3.0
       let continuous = 0;
-      if (scrollY <= offsets[0]) {
+      if (effScroll <= offsets[0]) {
         continuous = 0;
-      } else if (scrollY <= offsets[1]) {
+      } else if (effScroll <= offsets[1]) {
         const span = Math.max(1, offsets[1] - offsets[0]);
-        continuous = 0 + (scrollY - offsets[0]) / span;
-      } else if (scrollY <= offsets[2]) {
+        continuous = 0 + (effScroll - offsets[0]) / span;
+      } else if (effScroll <= offsets[2]) {
         const span = Math.max(1, offsets[2] - offsets[1]);
-        continuous = 1 + (scrollY - offsets[1]) / span;
+        continuous = 1 + (effScroll - offsets[1]) / span;
       } else {
         const span = Math.max(1, offsets[3] - offsets[2]);
-        continuous = Math.min(3, 2 + (scrollY - offsets[2]) / span);
+        continuous = Math.min(3, 2 + (effScroll - offsets[2]) / span);
       }
 
       sceneScroll.progress = continuous;
