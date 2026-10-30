@@ -79,7 +79,7 @@ function TestimonialCard({
 
   return (
     <motion.article
-      className={clsx('absolute', 'inset-0', 'flex', 'flex-col', 'justify-between', 'overflow-hidden', 'rounded-3xl', 'border', 'border-white/15', 'bg-[#0b0b1c]/95', 'p-7', 'shadow-[0_20px_60px_rgba(0,0,0,0.6)]', 'backdrop-blur-md')}
+      className={clsx('absolute', 'inset-0', 'flex', 'flex-col', 'justify-between', 'overflow-hidden', 'rounded-3xl', 'border', 'border-white/15', 'bg-[#0b0b1c]', 'p-7', 'shadow-[0_20px_60px_rgba(0,0,0,0.6)]', 'will-change-transform')}
       style={{
         zIndex: i,
         x,
