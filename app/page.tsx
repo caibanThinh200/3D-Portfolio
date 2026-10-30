@@ -4,6 +4,7 @@ import ScrollTracker from "./components/canvas/ScrollTracker";
 import ProjectsSection from "./components/sections/ProjectsSection";
 import AboutSection from "./components/sections/AboutSection";
 import ContactSection from "./components/sections/ContactSection";
+import TestimonialsSection from "./components/sections/TestimonialsSection";
 import clsx from "clsx";
 
 export default function Home() {
@@ -33,6 +34,9 @@ export default function Home() {
 
         {/* Phase 3: Projects content on the LEFT, Hand glides to the RIGHT */}
         <ProjectsSection />
+
+        {/* Testimonials: playing-card stack + diagonal client carousels */}
+        <TestimonialsSection />
 
         {/* Phase 4: Section 4 content on the RIGHT, Hand glides to the LEFT */}
         <ContactSection />

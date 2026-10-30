@@ -17,35 +17,66 @@ export default function ProjectsSection() {
   const [height, setHeight] = useState<number | undefined>(undefined);
 
   useEffect(() => {
+    let raf = 0;
+    let current = 0;
+    let target = 0;
+    let initialised = false;
+
+    const getDistance = () => {
+      const track = trackRef.current;
+      if (!track) return 0;
+      return Math.max(0, track.offsetWidth - window.innerWidth);
+    };
+
     const measure = () => {
-      const track = trackRef.current;
-      if (!track) return;
-      const distance = Math.max(0, track.scrollWidth - window.innerWidth);
-      setHeight(window.innerHeight + distance);
+      setHeight(window.innerHeight + getDistance());
     };
 
-    const update = () => {
+    // Compute desired x offset from scroll position.
+    const computeTarget = () => {
       const section = sectionRef.current;
-      const track = trackRef.current;
-      if (!section || !track) return;
-      const distance = Math.max(0, track.scrollWidth - window.innerWidth);
-      const scrolled = -section.getBoundingClientRect().top;
-      const p = Math.min(1, Math.max(0, scrolled / Math.max(1, section.offsetHeight - window.innerHeight)));
-      track.style.transform = `translate3d(${-p * distance}px,0,0)`;
+      if (!section) return 0;
+      const vh = window.innerHeight;
+      const rect = section.getBoundingClientRect();
+      const distance = getDistance();
+
+      // Entry: 0 when section top is at viewport bottom, 1 when it reaches the top.
+      const entry = Math.min(1, Math.max(0, 1 - rect.top / vh));
+      const eased = 1 - Math.pow(1 - entry, 3);
+      const entryOffset = (1 - eased) * window.innerWidth * 0.7; // starts off to the right
+
+      const span = Math.max(1, section.offsetHeight - vh);
+      const p = Math.min(1, Math.max(0, -rect.top / span));
+      return entryOffset - p * distance;
     };
 
-    const onResize = () => {
-      measure();
-      update();
+    const tick = () => {
+      const track = trackRef.current;
+      if (track) {
+        target = computeTarget();
+        if (!initialised) {
+          current = target;
+          initialised = true;
+        }
+        current += (target - current) * 0.1; // smooth easing
+        if (Math.abs(target - current) < 0.05) current = target;
+        track.style.transform = `translate3d(${current}px,0,0)`;
+      }
+      raf = requestAnimationFrame(tick);
     };
 
     measure();
-    update();
-    window.addEventListener("scroll", update, { passive: true });
-    window.addEventListener("resize", onResize);
+    raf = requestAnimationFrame(tick);
+
+    const ro = new ResizeObserver(measure);
+    if (trackRef.current) ro.observe(trackRef.current);
+    window.addEventListener("resize", measure);
+    window.addEventListener("load", measure);
     return () => {
-      window.removeEventListener("scroll", update);
-      window.removeEventListener("resize", onResize);
+      cancelAnimationFrame(raf);
+      ro.disconnect();
+      window.removeEventListener("resize", measure);
+      window.removeEventListener("load", measure);
     };
   }, []);
 
