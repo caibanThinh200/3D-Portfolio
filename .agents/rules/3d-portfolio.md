@@ -1,3 +1,7 @@
+---
+trigger: always_on
+---
+
 # 3D Portfolio — Agent Instructions
 
 ## Project Context & Architecture
@@ -95,3 +99,17 @@ app/
 2. Build the visual hierarchy and typography overlay using Tailwind CSS and framer-motion.
 3. Construct the R3F Canvas, including lighting, the hand mesh, the squircle ring orbit, and post-processing effects.
 4. Leave a clean scroll transition wrapper beneath the Hero so later sections can be plugged in during Phase 2.
+
+## Agent Workflow (Multi-Agent — MANDATORY)
+
+Every non-trivial request (feature, bug fix, refactor, UI change) MUST follow the multi-agent protocol defined in [`multi-agents.md`](./multi-agents.md):
+
+1. **Coordinator** (session model, full tools) — decomposes the task, writes the Exploration Brief, then the Implementation Brief. Orchestrates only; never edits files directly.
+2. **Explore agent** (`gemini-2.0-flash`, read-only) — researches the codebase (view/list/grep/web only) and returns a Findings Report.
+3. **Implement agent** (`gemini-2.0-flash`, write access) — applies the brief exactly, then validates with `npm run build` / `tsc --noEmit` and returns a Completion Report.
+4. **Coordinator** — verifies the report, spot-checks key files, and summarizes to the user (spawning a corrective Implement pass if needed).
+
+Project-specific constraints for all agents:
+- Follow the tech stack and file structure in this document.
+- Respect `AGENTS.md`: read the relevant guide in `node_modules/next/dist/docs/` before writing Next.js code.
+- Trivial requests (questions, explanations) skip the flow and are answered directly.

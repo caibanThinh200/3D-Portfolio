@@ -1,14 +1,11 @@
 ---
-name: multi-agent-architect
+trigger: always_on
 description: >-
-  Activates a multi-agent architecture for every user prompt. Use this skill
-  whenever the user asks to implement a feature, fix a bug, refactor code, or
-  make any meaningful change to the codebase. The Coordinator (Claude Sonnet,
-  full tools) orchestrates two subagents: an Explore agent (Gemini 2.0 Flash,
-  read-only) that researches the codebase, and an Implement agent (Gemini 2.0
-  Flash, write access) that applies changes based on the Explore agent's
-  findings.
+  Activates a multi-agent architecture for every user prompt. The Coordinator
+  (full tools) orchestrates an Explore agent (read-only) and an Implement agent
+  (write access) for any meaningful codebase change.
 ---
+
 
 # Multi-Agent Architect
 

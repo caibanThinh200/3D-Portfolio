@@ -11,6 +11,11 @@ const PROJECTS = [
   { title: "Lumen Docs", tag: "Tooling", year: "2023", desc: "Developer documentation generator with instant search.", hue: 215 },
 ];
 
+// Scroll pixels needed per horizontal pixel (higher = slower slide).
+const SCROLL_RATIO = 1.8;
+// Extra sticky scroll after the last card is fully visible.
+const END_HOLD = 200;
+
 export default function ProjectsSection() {
   const sectionRef = useRef<HTMLElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
@@ -29,7 +34,7 @@ export default function ProjectsSection() {
     };
 
     const measure = () => {
-      setHeight(window.innerHeight + getDistance());
+      setHeight(window.innerHeight + getDistance() * SCROLL_RATIO + END_HOLD);
     };
 
     // Compute desired x offset from scroll position.
@@ -45,7 +50,7 @@ export default function ProjectsSection() {
       const eased = 1 - Math.pow(1 - entry, 3);
       const entryOffset = (1 - eased) * window.innerWidth * 0.7; // starts off to the right
 
-      const span = Math.max(1, section.offsetHeight - vh);
+      const span = Math.max(1, section.offsetHeight - vh - END_HOLD);
       const p = Math.min(1, Math.max(0, -rect.top / span));
       return entryOffset - p * distance;
     };
@@ -105,14 +110,14 @@ export default function ProjectsSection() {
           {PROJECTS.map((p, i) => (
             <article
               key={p.title}
-              className="group relative flex h-[340px] w-[300px] sm:w-[380px] shrink-0 flex-col justify-between overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] p-6 backdrop-blur-md transition-all duration-300 hover:-translate-y-2 hover:border-white/25"
-              style={{
-                backgroundImage: `radial-gradient(circle at 80% 0%, hsla(${p.hue},90%,60%,0.25), transparent 60%)`,
-              }}
+              className="group relative flex h-[420px] w-[300px] sm:w-[380px] shrink-0 flex-col gap-4 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] p-4 backdrop-blur-md transition-all duration-300 hover:-translate-y-2 hover:border-white/25"
             >
-              <div className="flex items-center justify-between text-xs uppercase tracking-[0.25em] text-white/50">
-                <span>{String(i + 1).padStart(2, "0")}</span>
-                <span>{p.year}</span>
+              <div className="relative h-40 w-full shrink-0 overflow-hidden rounded-xl">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/project-placeholder.jpg" alt={`${p.title} preview`} className="h-full w-full object-cover" />
+                <span className="absolute left-3 top-3 rounded-full bg-black/60 px-2 py-0.5 text-[10px] tracking-[0.2em] text-white/70">
+                  {String(i + 1).padStart(2, "0")} &bull; {p.year}
+                </span>
               </div>
               <div className="flex flex-col gap-3">
                 <span

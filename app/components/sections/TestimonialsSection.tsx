@@ -87,7 +87,6 @@ function TestimonialCard({
         rotate,
         opacity,
         scale,
-        backgroundImage: `radial-gradient(circle at 85% 0%, hsla(${t.hue},90%,60%,0.28), transparent 60%)`,
       }}
     >
       <div
@@ -104,7 +103,7 @@ function TestimonialCard({
       <div className={clsx('relative', 'flex', 'items-center', 'gap-4')}>
         <div
           className={clsx('flex', 'h-12', 'w-12', 'items-center', 'justify-center', 'rounded-full', 'text-sm', 'font-medium', 'text-black')}
-          style={{ background: `linear-gradient(135deg, hsl(${t.hue},90%,70%), hsl(${t.hue + 40},90%,55%))` }}
+          style={{ background: `hsl(${t.hue},90%,70%)` }}
         >
           {t.name.split(" ").map((n) => n[0]).join("")}
         </div>
