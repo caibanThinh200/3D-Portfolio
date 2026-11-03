@@ -1,5 +1,6 @@
 "use client";
 
+import clsx from "clsx";
 import { useEffect, useRef, useState } from "react";
 
 const PROJECTS = [
@@ -14,7 +15,7 @@ const PROJECTS = [
 // Scroll pixels needed per horizontal pixel (higher = slower slide).
 const SCROLL_RATIO = 1.8;
 // Extra sticky scroll after the last card is fully visible.
-const END_HOLD = 200;
+const END_HOLD = 400;
 
 export default function ProjectsSection() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -90,44 +91,44 @@ export default function ProjectsSection() {
       ref={sectionRef}
       id="projects"
       style={{ height: height ?? "300vh" }}
-      className="relative border-t border-white/5"
+      className={clsx('relative', 'border-t', 'border-white/5')}
     >
-      <div className="sticky top-0 flex h-screen flex-col justify-center overflow-hidden">
-        <div className="px-6 sm:px-12 lg:px-16 xl:px-24 mb-10 flex flex-col gap-3 pointer-events-auto">
-          <div className="flex items-center gap-3 text-xs uppercase tracking-[0.3em] text-cyan-400">
-            <span className="inline-block h-1.5 w-1.5 rounded-full bg-cyan-400 shadow-[0_0_8px_#00d4ff]" />
+      <div className={clsx('sticky', 'top-0', 'flex', 'h-screen', 'flex-col', 'justify-center', 'overflow-hidden')}>
+        <div className={clsx('px-6', 'sm:px-12', 'lg:px-16', 'xl:px-24', 'mb-10', 'flex', 'flex-col', 'gap-3', 'pointer-events-auto')}>
+          <div className={clsx('flex', 'items-center', 'gap-3', 'text-xs', 'uppercase', 'tracking-[0.3em]', 'text-cyan-400')}>
+            <span className={clsx('inline-block', 'h-1.5', 'w-1.5', 'rounded-full', 'bg-cyan-400', 'shadow-[0_0_8px_#00d4ff]')} />
             <span>Phase 03 &bull; Selected Works</span>
           </div>
-          <h2 className="font-serif text-3xl sm:text-4xl font-light text-white/90">
+          <h2 className={clsx('font-serif', 'text-3xl', 'sm:text-4xl', 'font-light', 'text-white/90')}>
             Selected Works
           </h2>
         </div>
 
         <div
           ref={trackRef}
-          className="flex w-max gap-6 px-6 sm:px-12 lg:px-16 xl:px-24 will-change-transform pointer-events-auto"
+          className={clsx('flex', 'w-max', 'gap-6', 'px-6', 'sm:px-12', 'lg:px-16', 'xl:px-24', 'will-change-transform', 'pointer-events-auto')}
         >
           {PROJECTS.map((p, i) => (
             <article
               key={p.title}
-              className="group relative flex h-[420px] w-[300px] sm:w-[380px] shrink-0 flex-col gap-4 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] p-4 backdrop-blur-md transition-all duration-300 hover:-translate-y-2 hover:border-white/25"
+              className={clsx('group', 'relative', 'flex', 'h-[420px]', 'w-[300px]', 'sm:w-[380px]', 'shrink-0', 'flex-col', 'gap-4', 'overflow-hidden', 'rounded-2xl', 'border', 'border-white/10', 'bg-white/[0.03]', 'p-4', 'backdrop-blur-md', 'transition-all', 'duration-300', 'hover:-translate-y-2', 'hover:border-white/25')}
             >
-              <div className="relative h-40 w-full shrink-0 overflow-hidden rounded-xl">
+              <div className={clsx('relative', 'h-40', 'w-full', 'shrink-0', 'overflow-hidden', 'rounded-xl')}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/project-placeholder.jpg" alt={`${p.title} preview`} className="h-full w-full object-cover" />
-                <span className="absolute left-3 top-3 rounded-full bg-black/60 px-2 py-0.5 text-[10px] tracking-[0.2em] text-white/70">
+                <img src="/project-placeholder.jpg" alt={`${p.title} preview`} className={clsx('h-full', 'w-full', 'object-cover')} />
+                <span className={clsx('absolute', 'left-3', 'top-3', 'rounded-full', 'bg-black/60', 'px-2', 'py-0.5', 'text-[10px]', 'tracking-[0.2em]', 'text-white/70')}>
                   {String(i + 1).padStart(2, "0")} &bull; {p.year}
                 </span>
               </div>
-              <div className="flex flex-col gap-3">
+              <div className={clsx('flex', 'flex-col', 'gap-3')}>
                 <span
-                  className="w-fit rounded-full border px-3 py-1 text-[10px] uppercase tracking-[0.2em]"
+                  className={clsx('w-fit', 'rounded-full', 'border', 'px-3', 'py-1', 'text-[10px]', 'uppercase', 'tracking-[0.2em]')}
                   style={{ borderColor: `hsla(${p.hue},90%,65%,0.5)`, color: `hsl(${p.hue},90%,75%)` }}
                 >
                   {p.tag}
                 </span>
-                <h3 className="font-serif text-2xl text-white/90">{p.title}</h3>
-                <p className="text-sm leading-relaxed text-white/50">{p.desc}</p>
+                <h3 className={clsx('font-serif', 'text-2xl', 'text-white/90')}>{p.title}</h3>
+                <p className={clsx('text-sm', 'leading-relaxed', 'text-white/50')}>{p.desc}</p>
               </div>
             </article>
           ))}

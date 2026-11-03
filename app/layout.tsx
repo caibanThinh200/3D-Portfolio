@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { Manrope, Playfair_Display } from "next/font/google";
 import "./globals.css";
+import SmoothScroll from "./components/layout/SmoothScroll";
+import ScrollProgressBar from "./components/layout/ScrollProgressBar";
+import SectionAnchor from "./components/layout/SectionAnchor";
 
 const manrope = Manrope({
   variable: "--font-manrope",
@@ -23,7 +26,13 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${manrope.variable} ${playfair.variable} antialiased`}>
-      <body className="min-h-screen">{children}</body>
+      <body className="min-h-screen">
+        <SmoothScroll>
+          <ScrollProgressBar />
+          <SectionAnchor />
+          {children}
+        </SmoothScroll>
+      </body>
     </html>
   );
 }
