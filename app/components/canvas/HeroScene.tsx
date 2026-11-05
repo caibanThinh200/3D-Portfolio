@@ -666,13 +666,19 @@ export default function HeroScene() {
     // Smooth Hermite easing for transitions between keyframes
     const t = u * u * (3 - 2 * u);
 
+    // Responsive fit: on narrow viewports (mobile/tablet) pull the camera
+    // back and compress horizontal offsets so the scene fits the width.
+    const aspect = state.size.width / Math.max(1, state.size.height);
+    const zs = Math.min(3, Math.max(1, 1.3 / aspect));
+    const xs = 1 / zs;
+
     // Target Camera Position (interpolated between phases)
-    const targetCamX = THREE.MathUtils.lerp(kfA.camPos[0], kfB.camPos[0], t);
+    const targetCamX = THREE.MathUtils.lerp(kfA.camPos[0], kfB.camPos[0], t) * xs;
     const targetCamY = THREE.MathUtils.lerp(kfA.camPos[1], kfB.camPos[1], t);
-    const targetCamZ = THREE.MathUtils.lerp(kfA.camPos[2], kfB.camPos[2], t);
+    const targetCamZ = THREE.MathUtils.lerp(kfA.camPos[2], kfB.camPos[2], t) * zs;
 
     // Target LookAt
-    const targetLookX = THREE.MathUtils.lerp(kfA.lookAt[0], kfB.lookAt[0], t);
+    const targetLookX = THREE.MathUtils.lerp(kfA.lookAt[0], kfB.lookAt[0], t) * xs;
     const targetLookY = THREE.MathUtils.lerp(kfA.lookAt[1], kfB.lookAt[1], t);
     const targetLookZ = THREE.MathUtils.lerp(kfA.lookAt[2], kfB.lookAt[2], t);
 
@@ -681,14 +687,14 @@ export default function HeroScene() {
     const targetHandRotY = THREE.MathUtils.lerp(kfA.handRot[1], kfB.handRot[1], t);
     const targetHandRotZ = THREE.MathUtils.lerp(kfA.handRot[2], kfB.handRot[2], t);
 
-    const targetHandPosX = THREE.MathUtils.lerp(kfA.handPos[0], kfB.handPos[0], t);
+    const targetHandPosX = THREE.MathUtils.lerp(kfA.handPos[0], kfB.handPos[0], t) * xs;
     const targetHandPosY = THREE.MathUtils.lerp(kfA.handPos[1], kfB.handPos[1], t);
     const targetHandPosZ = THREE.MathUtils.lerp(kfA.handPos[2], kfB.handPos[2], t);
 
     const targetHandScale = THREE.MathUtils.lerp(kfA.handScale, kfB.handScale, t);
 
     // Target Ring Transform
-    const targetRingPosX = THREE.MathUtils.lerp(kfA.ringPos[0], kfB.ringPos[0], t);
+    const targetRingPosX = THREE.MathUtils.lerp(kfA.ringPos[0], kfB.ringPos[0], t) * xs;
     const targetRingPosY = THREE.MathUtils.lerp(kfA.ringPos[1], kfB.ringPos[1], t);
     const targetRingPosZ = THREE.MathUtils.lerp(kfA.ringPos[2], kfB.ringPos[2], t);
 
