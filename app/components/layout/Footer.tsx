@@ -1,3 +1,4 @@
+import clsx from "clsx";
 import type { ReactNode } from "react";
 
 const iconProps = {
@@ -49,9 +50,9 @@ const linkClass = "inline-flex items-center gap-2.5 transition-colors hover:text
 
 export default function Footer() {
   return (
-    <footer className="relative z-10 border-t border-white/5 bg-[#050510] px-6 py-10 text-base text-white/60 sm:px-12 lg:px-16 xl:px-24">
-      <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-        <nav aria-label="Social links" className="flex gap-6">
+    <footer className={clsx('relative', 'z-10', 'border-t', 'border-white/5', 'bg-[#050510]', 'px-6', 'py-10', 'text-base', 'text-white/60', 'sm:px-12', 'lg:px-16', 'xl:px-24')}>
+      <div className={clsx('flex', 'flex-col', 'gap-6', 'sm:flex-row', 'sm:items-center', 'sm:justify-between')}>
+        <nav aria-label="Social links" className={clsx('flex', 'gap-6')}>
           {SOCIALS.map((s) => (
             <a
               key={s.label}
@@ -66,7 +67,7 @@ export default function Footer() {
             </a>
           ))}
         </nav>
-        <div className="flex flex-col gap-3 sm:flex-row sm:gap-8">
+        <div className={clsx('flex', 'flex-col', 'gap-3', 'sm:flex-row', 'sm:gap-8')}>
           <a href="tel:+84900000000" className={linkClass}>
             <PhoneIcon />
             +84 900 000 000
@@ -76,7 +77,7 @@ export default function Footer() {
             hello@example.com
           </a>
         </div>
-        <p className="text-sm">&copy; {new Date().getFullYear()} Your Name. All rights reserved.</p>
+        <p className="text-sm">&copy; 2026 Your Name. All rights reserved.</p>
       </div>
     </footer>
   );
