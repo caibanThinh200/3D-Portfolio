@@ -12,7 +12,7 @@ export default function SmoothScroll({ children }: { children: ReactNode }) {
   const [lenis, setLenis] = useState<Lenis | null>(null);
 
   useEffect(() => {
-    const instance = new Lenis({ lerp: 0.1, smoothWheel: true });
+    const instance = new Lenis({ lerp: 0.1, smoothWheel: true, autoRaf: false });
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setLenis(instance);
 
@@ -21,9 +21,19 @@ export default function SmoothScroll({ children }: { children: ReactNode }) {
       instance.raf(time);
       raf = requestAnimationFrame(loop);
     };
-    raf = requestAnimationFrame(loop);
+    const start = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(loop);
+    };
+    const onVisibility = () => {
+      if (document.hidden) cancelAnimationFrame(raf);
+      else start();
+    };
+    start();
+    document.addEventListener("visibilitychange", onVisibility);
 
     return () => {
+      document.removeEventListener("visibilitychange", onVisibility);
       cancelAnimationFrame(raf);
       instance.destroy();
       setLenis(null);

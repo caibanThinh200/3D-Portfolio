@@ -5,7 +5,7 @@ import { ToneMappingMode } from "postprocessing";
 
 export default function PostProcessing() {
   return (
-    <EffectComposer multisampling={4}>
+    <EffectComposer multisampling={0}>
       <Bloom
         luminanceThreshold={0.7}
         luminanceSmoothing={0.2}
