@@ -4,6 +4,7 @@ import "./globals.css";
 import SmoothScroll from "./components/layout/SmoothScroll";
 import ScrollProgressBar from "./components/layout/ScrollProgressBar";
 import SectionAnchor from "./components/layout/SectionAnchor";
+import Footer from "./components/layout/Footer";
 
 const manrope = Manrope({
   variable: "--font-manrope",
@@ -31,6 +32,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           <ScrollProgressBar />
           <SectionAnchor />
           {children}
+          <Footer />
         </SmoothScroll>
       </body>
     </html>
